@@ -170,10 +170,12 @@ func (c dSaturColoring) uncolor(id int64) {
 // returned as nil.
 func dSaturExact(term Terminator, selector *saturationDegree, cand dSaturColoring, k, ub int, best map[int64]int) (newK int, colors map[int64]int, err error) {
 	if len(cand.uncolored) == 0 {
-		if k < ub {
-			return k, clone(cand.colors), nil
-		}
-		return ub, best, nil
+		// In the published algorithm, this is guarded by k < ub,
+		// but dSaturExact is never called with k >= ub; in the
+		// initial call we have excluded cases where k == ub and
+		// it cannot be greater, and in the recursive call, we
+		// have already checked that k < ub.
+		return k, clone(cand.colors), nil
 	}
 
 	if term != nil {
@@ -240,13 +242,6 @@ func dSaturExact(term Terminator, selector *saturationDegree, cand dSaturColorin
 	}
 
 	return ub, best, nil
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
 
 // maximumClique returns a maximum clique in g and its order.
